@@ -1,60 +1,92 @@
-from flask import Flask, render_template, request, redirect
-import sqlite3
+import os
 from datetime import datetime
+
+from flask import Flask, jsonify, redirect, render_template, request
+import psycopg2
 
 app = Flask(__name__)
 
-# ---------- Database setup ----------
+
+def get_database_url():
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError("DATABASE_URL environment variable is not set.")
+
+    # Some providers still expose postgres:// URLs, which psycopg2 accepts
+    # more reliably after normalizing to postgresql://.
+    if database_url.startswith("postgres://"):
+        return database_url.replace("postgres://", "postgresql://", 1)
+    return database_url
+
+
+def get_connection():
+    return psycopg2.connect(get_database_url())
+
+
 def init_db():
-    conn = sqlite3.connect('database.db')
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS moods (
-            id   INTEGER PRIMARY KEY AUTOINCREMENT,
-            mood TEXT,
-            note TEXT,
-            date TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS moods (
+                    id SERIAL PRIMARY KEY,
+                    mood TEXT NOT NULL,
+                    note TEXT,
+                    date TEXT NOT NULL
+                )
+                """
+            )
+
 
 init_db()
 
-# ---------- Routes ----------
 
-# GET / → show the page with all saved moods
-@app.route('/')
+@app.route("/")
 def index():
-    conn = sqlite3.connect('database.db')
-    moods = conn.execute(
-        'SELECT mood, note, date FROM moods ORDER BY id DESC'
-    ).fetchall()
-    conn.close()
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT mood, note, date FROM moods ORDER BY id DESC"
+            )
+            moods = cursor.fetchall()
+
     total_entries = len(moods)
-    latest_mood = moods[0][0] if moods else 'No moods logged yet'
+    latest_mood = moods[0][0] if moods else "No moods logged yet"
     return render_template(
-        'index.html',
+        "index.html",
         moods=moods,
         total_entries=total_entries,
-        latest_mood=latest_mood
+        latest_mood=latest_mood,
     )
 
-# POST /save → save mood and note, then redirect back
-@app.route('/save', methods=['POST'])
+
+@app.route("/save", methods=["POST"])
 def save():
-    mood = request.form['mood']
-    note = request.form['note']
-    date = datetime.now().strftime('%Y-%m-%d %H:%M')
+    mood = request.form["mood"]
+    note = request.form["note"]
+    date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    conn = sqlite3.connect('database.db')
-    conn.execute(
-        'INSERT INTO moods (mood, note, date) VALUES (?, ?, ?)',
-        (mood, note, date)
-    )
-    conn.commit()
-    conn.close()
+    with get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO moods (mood, note, date) VALUES (%s, %s, %s)",
+                (mood, note, date),
+            )
 
-    return redirect('/')
+    return redirect("/")
 
-if __name__ == '__main__':
+
+@app.route("/health")
+def health():
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+        return jsonify({"status": "ok", "database": "connected"}), 200
+    except Exception as exc:
+        return jsonify({"status": "error", "database": "unavailable", "detail": str(exc)}), 503
+
+
+if __name__ == "__main__":
     app.run(debug=True)
