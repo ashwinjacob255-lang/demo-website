@@ -1,0 +1,102 @@
+/* General page style */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+    color: #333;
+}
+
+h1 {
+    color: #4a90d9;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    color: #777;
+    margin-top: 0;
+    margin-bottom: 24px;
+}
+
+/* Form card */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+
+select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    margin-top: 20px;
+    background-color: #4a90d9;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    font-size: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #357abd;
+}
+
+/* Previous entries */
+h2 {
+    color: #555;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 8px;
+}
+
+.entry {
+    background: white;
+    border-left: 4px solid #4a90d9;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.date {
+    font-size: 13px;
+    color: #999;
+}
+
+.entry p {
+    margin: 0;
+    color: #555;
+}
+
+.empty {
+    color: #aaa;
+    font-style: italic;
+}

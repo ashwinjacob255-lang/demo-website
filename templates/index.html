@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Mood Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Daily Mood Tracker</h1>
+    <p class="subtitle">How are you feeling today?</p>
+
+    <!-- FORM: sends data to Flask using POST -->
+    <div class="card">
+        <form action="/save" method="POST">
+
+            <!-- Mood selection dropdown -->
+            <label for="mood">Select your mood:</label>
+            <select name="mood" id="mood" required>
+                <option value="">-- Choose --</option>
+                <option value="Happy 😊">Happy 😊</option>
+                <option value="Neutral 😐">Neutral 😐</option>
+                <option value="Sad 😢">Sad 😢</option>
+                <option value="Angry 😡">Angry 😡</option>
+                <option value="Excited 🤩">Excited 🤩</option>
+            </select>
+
+            <!-- Note text area -->
+            <label for="note">Write a short note about your day:</label>
+            <textarea name="note" id="note" rows="4"
+                placeholder="Today I felt this way because..."></textarea>
+
+            <!-- Submit button -->
+            <button type="submit">Save Mood</button>
+
+        </form>
+    </div>
+
+    <!-- PREVIOUS ENTRIES -->
+    <h2>Previous Entries</h2>
+
+    {% if moods %}
+        {% for mood, note, date in moods %}
+        <div class="entry">
+            <div class="entry-header">
+                <strong>{{ mood }}</strong>
+                <span class="date">{{ date }}</span>
+            </div>
+            {% if note %}
+            <p>{{ note }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty">No entries yet. Save your first mood above!</p>
+    {% endif %}
+
+</body>
+</html>
