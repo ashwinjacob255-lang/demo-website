@@ -2,58 +2,140 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Mood Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <div class="page-shell">
+        <div class="bg-orb orb-one"></div>
+        <div class="bg-orb orb-two"></div>
+        <div class="bg-grid"></div>
 
-    <h1>Daily Mood Tracker</h1>
-    <p class="subtitle">How are you feeling today?</p>
-
-    <!-- FORM: sends data to Flask using POST -->
-    <div class="card">
-        <form action="/save" method="POST">
-
-            <!-- Mood selection dropdown -->
-            <label for="mood">Select your mood:</label>
-            <select name="mood" id="mood" required>
-                <option value="">-- Choose --</option>
-                <option value="Happy 😊">Happy 😊</option>
-                <option value="Neutral 😐">Neutral 😐</option>
-                <option value="Sad 😢">Sad 😢</option>
-                <option value="Angry 😡">Angry 😡</option>
-                <option value="Excited 🤩">Excited 🤩</option>
-            </select>
-
-            <!-- Note text area -->
-            <label for="note">Write a short note about your day:</label>
-            <textarea name="note" id="note" rows="4"
-                placeholder="Today I felt this way because..."></textarea>
-
-            <!-- Submit button -->
-            <button type="submit">Save Mood</button>
-
-        </form>
-    </div>
-
-    <!-- PREVIOUS ENTRIES -->
-    <h2>Previous Entries</h2>
-
-    {% if moods %}
-        {% for mood, note, date in moods %}
-        <div class="entry">
-            <div class="entry-header">
-                <strong>{{ mood }}</strong>
-                <span class="date">{{ date }}</span>
+        <section class="hero">
+            <div class="hero-copy">
+                <span class="eyebrow">Reflect. Capture. Reset.</span>
+                <h1>Daily Mood Tracker</h1>
+                <p class="subtitle">Turn a quick check-in into a colorful little snapshot of your day.</p>
             </div>
-            {% if note %}
-            <p>{{ note }}</p>
-            {% endif %}
-        </div>
-        {% endfor %}
-    {% else %}
-        <p class="empty">No entries yet. Save your first mood above!</p>
-    {% endif %}
 
+            <div class="hero-panel">
+                <div class="stat-card">
+                    <span class="stat-label">Entries saved</span>
+                    <strong>{{ total_entries }}</strong>
+                </div>
+                <div class="stat-card accent">
+                    <span class="stat-label">Latest mood</span>
+                    <strong>{{ latest_mood }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-grid">
+            <div class="card form-card">
+                <div class="card-header">
+                    <h2>How are you feeling today?</h2>
+                    <p>Choose a mood, add a note, and keep your streak of self-awareness going.</p>
+                </div>
+
+                <form action="/save" method="POST">
+                    <label for="mood">Pick your mood</label>
+                    <div class="mood-gallery" aria-hidden="true">
+                        <div class="mood-chip happy">
+                            <span class="mood-icon">😊</span>
+                            <span>Happy</span>
+                        </div>
+                        <div class="mood-chip neutral">
+                            <span class="mood-icon">😐</span>
+                            <span>Neutral</span>
+                        </div>
+                        <div class="mood-chip sad">
+                            <span class="mood-icon">😢</span>
+                            <span>Sad</span>
+                        </div>
+                        <div class="mood-chip angry">
+                            <span class="mood-icon">😠</span>
+                            <span>Angry</span>
+                        </div>
+                        <div class="mood-chip excited">
+                            <span class="mood-icon">🤩</span>
+                            <span>Excited</span>
+                        </div>
+                    </div>
+
+                    <select name="mood" id="mood" required>
+                        <option value="">-- Choose --</option>
+                        <option value="Happy 😊">Happy 😊</option>
+                        <option value="Neutral 😐">Neutral 😐</option>
+                        <option value="Sad 😢">Sad 😢</option>
+                        <option value="Angry 😠">Angry 😠</option>
+                        <option value="Excited 🤩">Excited 🤩</option>
+                    </select>
+
+                    <label for="note">Write a short note</label>
+                    <textarea
+                        name="note"
+                        id="note"
+                        rows="5"
+                        placeholder="What shaped your day? A win, a challenge, a surprise?"
+                    ></textarea>
+
+                    <button type="submit">Save Mood</button>
+                </form>
+            </div>
+
+            <aside class="card tips-card">
+                <h2>Feel-good prompts</h2>
+                <div class="prompt-list">
+                    <div class="prompt-item">
+                        <span class="prompt-dot"></span>
+                        <p>What gave you energy today?</p>
+                    </div>
+                    <div class="prompt-item">
+                        <span class="prompt-dot"></span>
+                        <p>Was there a moment that changed your mood?</p>
+                    </div>
+                    <div class="prompt-item">
+                        <span class="prompt-dot"></span>
+                        <p>What would help tomorrow feel even better?</p>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="entries-section">
+            <div class="section-heading">
+                <h2>Previous Entries</h2>
+                <p>Your recent emotional snapshots live here.</p>
+            </div>
+
+            {% if moods %}
+                <div class="entries-grid">
+                    {% for mood, note, date in moods %}
+                    <article class="entry">
+                        <div class="entry-glow"></div>
+                        <div class="entry-header">
+                            <strong>{{ mood }}</strong>
+                            <span class="date">{{ date }}</span>
+                        </div>
+                        {% if note %}
+                        <p>{{ note }}</p>
+                        {% else %}
+                        <p class="entry-empty">No note added for this check-in.</p>
+                        {% endif %}
+                    </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-illustration">🌤️</div>
+                    <p class="empty">No entries yet. Save your first mood above and start building your story.</p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
 </body>
 </html>

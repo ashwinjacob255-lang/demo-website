@@ -30,7 +30,14 @@ def index():
         'SELECT mood, note, date FROM moods ORDER BY id DESC'
     ).fetchall()
     conn.close()
-    return render_template('index.html', moods=moods)
+    total_entries = len(moods)
+    latest_mood = moods[0][0] if moods else 'No moods logged yet'
+    return render_template(
+        'index.html',
+        moods=moods,
+        total_entries=total_entries,
+        latest_mood=latest_mood
+    )
 
 # POST /save → save mood and note, then redirect back
 @app.route('/save', methods=['POST'])
